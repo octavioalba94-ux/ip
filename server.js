@@ -82,6 +82,10 @@ app.get("/api/device-info", async (_request, response) => {
   });
 });
 
+app.get("/api/health", (_request, response) => {
+  response.sendStatus(200);
+});
+
 if (isProduction) {
   const distPath = path.join(__dirname, "dist");
   app.use(express.static(distPath));
@@ -94,6 +98,7 @@ if (isProduction) {
   app.use(vite.middlewares);
 }
 
-app.listen(port, "0.0.0.0", () => {
+const host = process.env.PORT ? "0.0.0.0" : "127.0.0.1";
+app.listen(port, host, () => {
   console.log(`Servicio disponible en http://localhost:${port}`);
 });

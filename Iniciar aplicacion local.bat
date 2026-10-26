@@ -9,17 +9,17 @@ if errorlevel 1 (
   exit /b 1
 )
 
-curl.exe --silent --fail http://localhost:3000/api/device-info >nul 2>nul
+curl.exe --silent --fail http://localhost:3000/api/health >nul 2>nul
 if errorlevel 1 (
   if exist "%~dp0node_modules\vite\bin\vite.js" (
-    start "Informacion del equipo - servidor" /D "%~dp0" cmd /k npm run dev
+    start "Informacion del equipo - servidor" /min /D "%~dp0" cmd /k npm run dev
   ) else (
-    start "Informacion del equipo - servidor" /D "%~dp0" cmd /k "npm install && npm run dev"
+    start "Informacion del equipo - servidor" /min /D "%~dp0" cmd /k "npm install && npm run dev"
   )
 )
 
 for /L %%i in (1,1,30) do (
-  curl.exe --silent --fail http://localhost:3000/api/device-info >nul 2>nul
+  curl.exe --silent --fail http://localhost:3000/api/health >nul 2>nul
   if not errorlevel 1 goto open
   timeout /t 1 /nobreak >nul
 )

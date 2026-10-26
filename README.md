@@ -7,11 +7,11 @@ Aplicación React con una API Node.js que consulta el hostname y las direcciones
 - Node.js 20.19+ o 22.12+
 - npm
 
-## Ver los datos de tu propia computadora
+## Aplicación local en Windows
 
-La página de GitHub Pages no puede leer por sí sola el hostname ni las interfaces privadas de una computadora visitante. Para mostrar la IPv4 de Ethernet en la página pública, el servicio local de Node debe estar ejecutándose en esa misma computadora y el navegador debe permitir el acceso a la red local.
+Una página pública no puede leer silenciosamente el hostname ni las interfaces privadas de un equipo: el navegador lo impide por seguridad. La página publicada muestra la IP pública; para consultar la IPv4 Ethernet sin permisos del navegador, ejecuta la aplicación local en el equipo.
 
-Para mostrar los datos reales de tu computadora:
+En Windows, instala Node.js 20.19 o superior, descarga este proyecto y ejecuta `Instalar inicio automatico.bat`. El instalador prepara las dependencias, registra el iniciador para que se ejecute al iniciar sesión y abre la aplicación local en `http://localhost:3000`. A partir del siguiente inicio de sesión, se abrirá automáticamente. Cada equipo debe ejecutar este instalador una vez.
 
 ```sh
 npm install
@@ -22,11 +22,11 @@ Abre `http://localhost:3000` en la misma computadora. El hostname y las direccio
 
 La consulta de la IP pública requiere conexión a Internet y envía una solicitud a `api.ipify.org`. Si el servicio externo no está disponible, la API informa un error en lugar de mostrar una dirección inventada. Mantén la terminal abierta mientras uses la página; para detener el servicio, pulsa `Ctrl+C` en esa terminal.
 
-En Windows, también puedes ejecutar `Iniciar aplicacion local.bat`: inicia el servicio si hace falta, espera a que responda y abre la página local.
+Para iniciar la aplicación manualmente, ejecuta `Iniciar aplicacion local.bat`. El inicio automático se puede quitar eliminando el acceso directo `Informacion del equipo` de la carpeta `shell:startup`.
 
 ## Desarrollo remoto
 
-Para consultar la información del servidor desde otro dispositivo de la misma red, usa la dirección IPv4 del equipo que ejecuta Node.js y permite el puerto 3000 en el firewall si es necesario. La página pública desplegada en Render consulta únicamente el servidor Render.
+Cada computadora necesita su propia instalación local; el servicio consulta el equipo en el que se está ejecutando.
 
 ## Producción
 
@@ -37,7 +37,7 @@ npm start
 
 El servicio escucha en el puerto `3000` por defecto. Puedes cambiarlo con la variable de entorno `PORT`.
 
-En la página pública, el hostname y la IPv4 de Ethernet se consultan desde el servicio `localhost:3000` que debe estar ejecutándose en la computadora visitante. La IP pública se consulta desde el navegador. Si el servicio local no está activo o el navegador bloquea el acceso a la red local, ejecuta `Iniciar aplicacion local.bat`, concede el permiso de red local cuando se solicite y actualiza la página. Si el navegador no permite la conexión local desde GitHub Pages, abre `http://localhost:3000`; esa dirección local no necesita permisos entre sitios.
+La página pública solo muestra la IP pública porque los navegadores no permiten que un sitio web lea el hostname ni la IPv4 Ethernet del visitante. Ejecuta la aplicación local para consultar esos datos en el equipo sin permisos de acceso a la red local del navegador.
 
 ## Publicar el frontend en GitHub Pages
 
