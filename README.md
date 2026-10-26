@@ -20,6 +20,8 @@ npm run dev
 
 Abre `http://localhost:3000` en la misma computadora. El hostname y las direcciones IPv4 mostradas entonces se consultan en ese equipo. Mantén la terminal abierta mientras uses la página; para detener el servicio, pulsa `Ctrl+C` en esa terminal.
 
+En Windows, también puedes ejecutar `Iniciar aplicacion local.bat`: inicia el servicio si hace falta, espera a que responda y abre la página local.
+
 Las IPv4 pueden ser privadas de tu red local; no necesariamente son la IP pública de Internet.
 
 ## Desarrollo remoto
