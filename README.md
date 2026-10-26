@@ -9,7 +9,7 @@ Aplicación React con una API Node.js que consulta el hostname y las direcciones
 
 ## Ver los datos de tu propia computadora
 
-La página pública de GitHub Pages muestra el equipo donde está alojada la API (Render), no la computadora del visitante. Los navegadores no permiten que una página pública lea el hostname ni las interfaces de red privadas del dispositivo que la visita.
+La página de GitHub Pages no puede leer por sí sola el hostname ni las interfaces privadas de una computadora visitante. Para mostrar la IPv4 de Ethernet en la página pública, el servicio local de Node debe estar ejecutándose en esa misma computadora y el navegador debe permitir el acceso a la red local.
 
 Para mostrar los datos reales de tu computadora:
 
@@ -37,7 +37,7 @@ npm start
 
 El servicio escucha en el puerto `3000` por defecto. Puedes cambiarlo con la variable de entorno `PORT`.
 
-En la página pública, la IP pública se consulta desde el navegador del visitante. El hostname y las direcciones locales siguen correspondiendo al servidor Render porque una página pública no puede leer esos datos del equipo visitante. Si el visitante usa una VPN o proxy, se muestra la IP de salida de ese intermediario. Las IP locales pueden ser privadas y los adaptadores virtuales (por ejemplo WSL) aparecen identificados por su nombre de interfaz.
+En la página pública, el hostname y la IPv4 de Ethernet se consultan desde el servicio `localhost:3000` que debe estar ejecutándose en la computadora visitante. La IP pública se consulta desde el navegador. Si el servicio local no está activo o el navegador bloquea el acceso a la red local, ejecuta `Iniciar aplicacion local.bat`, concede el permiso de red local cuando se solicite y actualiza la página. Si el navegador no permite la conexión local desde GitHub Pages, abre `http://localhost:3000`; esa dirección local no necesita permisos entre sitios.
 
 ## Publicar el frontend en GitHub Pages
 

@@ -9,17 +9,30 @@ const app = express();
 const port = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === "production" || process.argv.includes("--production");
 const allowedWebOrigin = process.env.WEB_ORIGIN;
+const allowedOrigins = new Set([
+  "https://octavioalba94-ux.github.io",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  ...(allowedWebOrigin ? [allowedWebOrigin] : []),
+]);
 
 app.use("/api", (request, response, next) => {
   const origin = request.get("origin");
-  if (origin && allowedWebOrigin && origin === allowedWebOrigin) {
-    response.set("Access-Control-Allow-Origin", allowedWebOrigin);
+  if (origin && allowedOrigins.has(origin)) {
+    response.set("Access-Control-Allow-Origin", origin);
     response.set("Vary", "Origin");
   }
 
   if (request.method === "OPTIONS") {
+    if (origin && !allowedOrigins.has(origin)) {
+      return response.sendStatus(403);
+    }
+
     response.set("Access-Control-Allow-Methods", "GET, OPTIONS");
     response.set("Access-Control-Allow-Headers", "Content-Type");
+    if (request.get("access-control-request-private-network") === "true") {
+      response.set("Access-Control-Allow-Private-Network", "true");
+    }
     return response.sendStatus(204);
   }
 

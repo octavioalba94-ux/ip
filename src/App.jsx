@@ -15,35 +15,52 @@ export default function App() {
   const [deviceInfo, setDeviceInfo] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const ethernetAddress = deviceInfo?.addresses
+    ?.find(({ interface: interfaceName }) => /^Ethernet(?:\s+\d+)?$/i.test(interfaceName))
+    ?.address;
 
   async function loadDeviceInfo() {
     setLoading(true);
     setError("");
 
     try {
-      const deviceInfoResponse = await fetch(`${API_BASE_URL}/api/device-info`);
-      if (!deviceInfoResponse.ok) {
-        throw new Error(`El servidor respondió con el estado ${deviceInfoResponse.status}.`);
-      }
-
-      const deviceInfo = await deviceInfoResponse.json();
-      let publicIp = deviceInfo.publicIp;
+      let deviceInfo = {};
       if (isRemoteServer) {
-        const publicIpResponse = await fetch("https://api.ipify.org?format=json");
+        const [publicIpResponse, localDeviceResponse] = await Promise.all([
+          fetch("https://api.ipify.org?format=json"),
+          fetch("http://localhost:3000/api/device-info"),
+        ]);
         if (!publicIpResponse.ok) {
           throw new Error(`El servicio de IP pública respondió con el estado ${publicIpResponse.status}.`);
         }
+        if (!localDeviceResponse.ok) {
+          throw new Error(`El servicio local respondió con el estado ${localDeviceResponse.status}.`);
+        }
 
-        publicIp = (await publicIpResponse.json()).ip;
+        deviceInfo.publicIp = (await publicIpResponse.json()).ip;
+        const localDeviceInfo = await localDeviceResponse.json();
+        deviceInfo.hostname = localDeviceInfo.hostname;
+        deviceInfo.addresses = localDeviceInfo.addresses;
+      } else {
+        const deviceInfoResponse = await fetch("/api/device-info");
+        if (!deviceInfoResponse.ok) {
+          throw new Error(`El servidor respondió con el estado ${deviceInfoResponse.status}.`);
+        }
+
+        deviceInfo = await deviceInfoResponse.json();
       }
 
-      if (typeof publicIp !== "string" || !isIPv4Address(publicIp)) {
+      if (typeof deviceInfo.publicIp !== "string" || !isIPv4Address(deviceInfo.publicIp)) {
         throw new Error("No se recibió una dirección IPv4 pública válida.");
       }
 
-      setDeviceInfo({ ...deviceInfo, publicIp });
+      setDeviceInfo(deviceInfo);
     } catch (loadError) {
-      setError(loadError.message || "No se pudo obtener la información del equipo.");
+      setError(
+        isRemoteServer
+          ? "No se pudo leer la red local de esta computadora. Ejecuta “Iniciar aplicacion local.bat” y concede al navegador permiso para acceder a la red local."
+          : loadError.message || "No se pudo obtener la información del equipo.",
+      );
     } finally {
       setLoading(false);
     }
@@ -58,12 +75,12 @@ export default function App() {
       <section className="card" aria-labelledby="page-title">
         <div className="eyebrow">
           <span className="status-dot" />
-          {isRemoteServer ? "DATOS DEL SERVIDOR" : "DATOS DE ESTA COMPUTADORA"}
+          {isRemoteServer ? "DATOS DE TU COMPUTADORA" : "DATOS DE ESTA COMPUTADORA"}
         </div>
         <h1 id="page-title">Tu equipo, en un vistazo</h1>
         <p className="intro">
           {isRemoteServer
-            ? "El hostname y las IP locales son del servidor alojado; la IP pública corresponde a tu conexión. Ejecuta la aplicación localmente para ver el hostname de tu equipo."
+            ? "Esta página obtiene el hostname y la IP Ethernet del servicio local de tu computadora, y consulta la IP pública de tu conexión."
             : "Hostname e IP locales de esta computadora; IP pública de salida de su conexión a Internet."}
         </p>
 
@@ -77,41 +94,27 @@ export default function App() {
         ) : (
           <div className="details">
             <article className="info-box">
-              <span className="label">HOSTNAME</span>
+              <span className="label">HOSTNAME DE ESTA COMPUTADORA</span>
               <strong className="value">{deviceInfo.hostname}</strong>
             </article>
             <article className="info-box public-ip-box">
               <span className="label">IP PÚBLICA DE INTERNET</span>
               <strong className="value">{deviceInfo.publicIp}</strong>
               <p className="box-note">
-                {isRemoteServer
-                  ? "IP pública de la conexión desde la que abriste esta página."
-                  : "IP pública de salida de tu conexión a Internet. Si estás detrás de un router, puede ser compartida por varios dispositivos."}
+                "IP pública de salida de tu conexión a Internet. Si estás detrás de un router o VPN, puede ser compartida o corresponder a su salida."
               </p>
             </article>
             <article className="info-box">
-              <span className="label">DIRECCIONES IPv4 LOCALES</span>
-              {deviceInfo.addresses.length > 0 ? (
-                <ul className="address-list">
-                  {deviceInfo.addresses.map((item) => {
-                    const { interface: interfaceName, address } = typeof item === "string"
-                      ? { interface: "", address: item }
-                      : item;
-                    return (
-                      <li className="address-item" key={address}>
-                        <span className="value">{address}</span>
-                        {interfaceName && <span className="interface-name">{interfaceName}</span>}
-                      </li>
-                    );
-                  })}
-                </ul>
+              <span className="label">IPv4 LOCAL (ETHERNET)</span>
+              {ethernetAddress ? (
+                <strong className="value">{ethernetAddress}</strong>
               ) : (
-                <p className="empty-value">No se detectaron direcciones IPv4 locales.</p>
+                <p className="empty-value">No se encontró una IPv4 en la interfaz Ethernet.</p>
               )}
             </article>
             <p className="footnote">
               {isRemoteServer
-                ? "El hostname y las direcciones locales pertenecen al servidor alojado. La IP pública se consulta desde tu navegador; si usas una VPN o proxy, se mostrará su IP de salida."
+                ? "El sitio desplegado consulta el equipo local porque iniciaste el servicio en esta computadora. Si no está activo o el navegador bloquea el acceso, inicia “Iniciar aplicacion local.bat” y permite el acceso a la red local."
                 : "Las IP locales pertenecen a las interfaces de esta computadora. La IP pública se consulta a través de un servicio externo (ipify); tu solicitud de consulta sale desde tu conexión."}
             </p>
           </div>
@@ -121,7 +124,11 @@ export default function App() {
           {loading ? "Actualizando…" : "Actualizar datos"}
         </button>
       </section>
-      <footer>Hostname e IP locales del sistema; IP pública consultada en Internet.</footer>
+      <footer>
+        {isRemoteServer
+          ? "Hostname e IP Ethernet desde el servicio local; IP pública consultada mediante ipify."
+          : "Hostname e IP locales del sistema; IP pública consultada en Internet."}
+      </footer>
     </main>
   );
 }
