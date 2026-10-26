@@ -101,7 +101,7 @@ export default function App() {
               <span className="label">IP PÚBLICA DE INTERNET</span>
               <strong className="value">{deviceInfo.publicIp}</strong>
               <p className="box-note">
-                "IP pública de salida de tu conexión a Internet. Si estás detrás de un router o VPN, puede ser compartida o corresponder a su salida."
+                IP pública de salida de tu conexión a Internet. Si estás detrás de un router o VPN, puede ser compartida o corresponder a su salida.
               </p>
             </article>
             <article className="info-box">
