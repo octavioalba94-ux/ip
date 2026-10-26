@@ -11,7 +11,7 @@ Aplicación React con una API Node.js que consulta el hostname y las direcciones
 
 Una página pública no puede leer silenciosamente el hostname ni las interfaces privadas de un equipo: el navegador lo impide por seguridad. La página publicada ofrece un enlace a la aplicación local. La aplicación local muestra directamente la IPv4 Ethernet, no la IP pública.
 
-En Windows, instala Node.js 20.19 o superior, descarga este proyecto y ejecuta `Instalar inicio automatico.bat`. El instalador prepara las dependencias, registra el iniciador para que se ejecute al iniciar sesión y abre la aplicación local en `http://localhost:3000`. A partir del siguiente inicio de sesión, se abrirá automáticamente. Cada equipo debe ejecutar este instalador una vez.
+En Windows, instala Node.js 20.19 o superior, descarga este proyecto y ejecuta `Instalar inicio automatico.bat` una vez. El instalador prepara las dependencias y registra una tarea programada que inicia el servidor local oculto al iniciar sesión. Abre `http://localhost:3000` para consultar la dirección. Cada equipo debe ejecutar el instalador en su propia computadora.
 
 ```sh
 npm install
@@ -20,9 +20,9 @@ npm run dev
 
 Abre `http://localhost:3000` en la misma computadora. La IPv4 Ethernet y el hostname se consultan directamente en las interfaces de ese equipo.
 
-La consulta local no requiere conexión a Internet. Mantén la terminal abierta mientras uses la página; para detener el servicio, pulsa `Ctrl+C` en esa terminal.
+La consulta local no requiere conexión a Internet. Si inicias el servidor manualmente con `npm run dev`, mantén abierta la terminal; para detenerlo, pulsa `Ctrl+C`. Cuando está instalado para inicio automático, Windows lo mantiene en segundo plano.
 
-Para iniciar la aplicación manualmente, ejecuta `Iniciar aplicacion local.bat`. El inicio automático se puede quitar eliminando el acceso directo `Informacion del equipo` de la carpeta `shell:startup`.
+Para iniciar la aplicación manualmente, ejecuta `Iniciar aplicacion local.bat`. Para quitar el inicio automático, elimina la tarea programada **Informacion del equipo - servicio local** desde el Programador de tareas de Windows.
 
 ## Desarrollo remoto
 
@@ -37,7 +37,7 @@ npm start
 
 El servicio escucha en el puerto `3000` por defecto. Puedes cambiarlo con la variable de entorno `PORT`.
 
-La página pública no intenta leer direcciones de red ni muestra la IP pública. Pulsa **Abrir aplicación local** para ver la IPv4 Ethernet de este equipo; cada equipo debe tener instalada y en ejecución su propia aplicación.
+La página pública no puede leer por sí sola las direcciones de red locales. Pulsa **Abrir aplicación local** para ver la IPv4 Ethernet de este equipo; cada equipo debe tener instalada su propia aplicación. El servicio local se inicia automáticamente en segundo plano después de instalarlo.
 
 ## Publicar el frontend en GitHub Pages
 
