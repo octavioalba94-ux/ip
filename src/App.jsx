@@ -40,7 +40,7 @@ export default function App() {
         <p className="intro">
           {isRemoteServer
             ? "La página pública muestra el servidor alojado, no la computadora desde la que navegas. Ejecuta la aplicación localmente para ver los datos de tu equipo."
-            : "Datos actuales obtenidos directamente del sistema operativo de esta computadora."}
+            : "Hostname e IP locales de esta computadora; IP pública de salida de su conexión a Internet."}
         </p>
 
         {loading ? (
@@ -56,22 +56,34 @@ export default function App() {
               <span className="label">HOSTNAME</span>
               <strong className="value">{deviceInfo.hostname}</strong>
             </article>
+            <article className="info-box public-ip-box">
+              <span className="label">IP PÚBLICA DE INTERNET</span>
+              <strong className="value">{deviceInfo.publicIp}</strong>
+              <p className="box-note">
+                {isRemoteServer
+                  ? "IP pública de salida del servidor alojado."
+                  : "IP pública de salida de tu conexión a Internet. Si estás detrás de un router, puede ser compartida por varios dispositivos."}
+              </p>
+            </article>
             <article className="info-box">
-              <span className="label">DIRECCIONES IPv4</span>
+              <span className="label">DIRECCIONES IPv4 LOCALES</span>
               {deviceInfo.addresses.length > 0 ? (
                 <ul className="address-list">
-                  {deviceInfo.addresses.map((address) => (
-                    <li className="value" key={address}>{address}</li>
+                  {deviceInfo.addresses.map(({ interface: interfaceName, address }) => (
+                    <li className="address-item" key={address}>
+                      <span className="value">{address}</span>
+                      <span className="interface-name">{interfaceName}</span>
+                    </li>
                   ))}
                 </ul>
               ) : (
-                <p className="empty-value">No se detectaron direcciones IPv4 externas.</p>
+                <p className="empty-value">No se detectaron direcciones IPv4 locales.</p>
               )}
             </article>
             <p className="footnote">
               {isRemoteServer
-                ? "Estos datos pertenecen a las interfaces de red del servidor alojado; pueden ser privados y no son necesariamente la IP pública de Internet."
-                : "Estas direcciones pertenecen a las interfaces de red de esta computadora; pueden ser privadas y no son necesariamente la IP pública de Internet."}
+                ? "Las direcciones locales pertenecen al servidor alojado. La IP pública se consulta desde ese servidor, no desde la computadora que visita la página."
+                : "Las IP locales pertenecen a las interfaces de esta computadora. La IP pública se consulta a través de un servicio externo (ipify); tu solicitud de consulta sale desde tu conexión."}
             </p>
           </div>
         )}
@@ -80,7 +92,7 @@ export default function App() {
           {loading ? "Actualizando…" : "Actualizar datos"}
         </button>
       </section>
-      <footer>Información obtenida en tiempo real desde el sistema operativo.</footer>
+      <footer>Hostname e IP locales del sistema; IP pública consultada en Internet.</footer>
     </main>
   );
 }

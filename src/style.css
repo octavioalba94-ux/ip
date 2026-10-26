@@ -114,6 +114,25 @@ h1 {
   list-style: none;
 }
 
+.address-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.interface-name,
+.box-note {
+  color: #78869a;
+  font-size: 12px;
+}
+
+.box-note {
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
 .empty-value,
 .footnote {
   color: #78869a;

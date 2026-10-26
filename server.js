@@ -1,4 +1,5 @@
 import os from "node:os";
+import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
@@ -25,16 +26,46 @@ app.use("/api", (request, response, next) => {
   next();
 });
 
-app.get("/api/device-info", (_request, response) => {
+app.get("/api/device-info", async (_request, response) => {
+  let publicIp;
+  try {
+    const publicIpResponse = await fetch("https://api.ipify.org?format=json", {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!publicIpResponse.ok) {
+      console.error(`Public IP lookup failed with status ${publicIpResponse.status}.`);
+      return response.status(502).json({
+        error: "No se pudo consultar la IP pública. Inténtalo de nuevo.",
+      });
+    }
+
+    ({ ip: publicIp } = await publicIpResponse.json());
+  } catch (error) {
+    console.error("Public IP lookup request failed:", error);
+    return response.status(502).json({
+      error: "No se pudo consultar la IP pública. Inténtalo de nuevo.",
+    });
+  }
+
+  if (typeof publicIp !== "string" || !net.isIPv4(publicIp)) {
+    console.error("Public IP lookup returned an invalid IPv4 address.");
+    return response.status(502).json({
+      error: "El servicio de consulta devolvió una IP pública no válida.",
+    });
+  }
+
   const interfaces = os.networkInterfaces();
-  const addresses = Object.values(interfaces)
-    .flatMap((entries) => entries ?? [])
-    .filter((entry) => !entry.internal && entry.family === "IPv4")
-    .map((entry) => entry.address);
+  const addresses = Object.entries(interfaces)
+    .flatMap(([name, entries]) => (entries ?? [])
+      .filter((entry) => !entry.internal && entry.family === "IPv4")
+      .map((entry) => ({ interface: name, address: entry.address })));
 
   response.json({
     hostname: os.hostname(),
-    addresses: [...new Set(addresses)],
+    publicIp,
+    addresses: addresses.filter(
+      (entry, index, list) => list.findIndex((candidate) => candidate.address === entry.address) === index,
+    ),
   });
 });
 

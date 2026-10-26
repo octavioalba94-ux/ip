@@ -1,6 +1,6 @@
 # Información del equipo
 
-Aplicación React con una API Node.js que consulta el hostname y las direcciones IPv4 directamente al sistema operativo de la máquina donde se ejecuta Node.js.
+Aplicación React con una API Node.js que consulta el hostname y las direcciones IPv4 locales en el sistema operativo, y obtiene la IP pública mediante ipify.
 
 ## Requisitos
 
@@ -18,11 +18,11 @@ npm install
 npm run dev
 ```
 
-Abre `http://localhost:3000` en la misma computadora. El hostname y las direcciones IPv4 mostradas entonces se consultan en ese equipo. Mantén la terminal abierta mientras uses la página; para detener el servicio, pulsa `Ctrl+C` en esa terminal.
+Abre `http://localhost:3000` en la misma computadora. El hostname y las direcciones IPv4 locales se consultan en ese equipo. La IP pública se obtiene a través de ipify y corresponde a la dirección pública de salida de tu conexión a Internet; si estás detrás de un router o una VPN, puede ser compartida o corresponder a la salida de la VPN.
+
+La consulta de la IP pública requiere conexión a Internet y envía una solicitud a `api.ipify.org`. Si el servicio externo no está disponible, la API informa un error en lugar de mostrar una dirección inventada. Mantén la terminal abierta mientras uses la página; para detener el servicio, pulsa `Ctrl+C` en esa terminal.
 
 En Windows, también puedes ejecutar `Iniciar aplicacion local.bat`: inicia el servicio si hace falta, espera a que responda y abre la página local.
-
-Las IPv4 pueden ser privadas de tu red local; no necesariamente son la IP pública de Internet.
 
 ## Desarrollo remoto
 
@@ -37,7 +37,7 @@ npm start
 
 El servicio escucha en el puerto `3000` por defecto. Puedes cambiarlo con la variable de entorno `PORT`.
 
-Las direcciones que se muestran son las IPv4 de las interfaces de red del servidor. Pueden ser direcciones privadas de una red local; no representan necesariamente la IP pública de Internet.
+La IP pública que muestra una instalación en Render corresponde al servidor Render, no al visitante. Las IP locales pueden ser privadas y los adaptadores virtuales (por ejemplo WSL) aparecen identificados por su nombre de interfaz.
 
 ## Publicar el frontend en GitHub Pages
 
