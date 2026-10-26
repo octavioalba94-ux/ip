@@ -7,6 +7,34 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const port = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === "production" || process.argv.includes("--production");
+const allowedOrigins = new Set([
+  "https://octavioalba94-ux.github.io",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+]);
+
+app.use("/api", (request, response, next) => {
+  const origin = request.get("origin");
+  if (origin && allowedOrigins.has(origin)) {
+    response.set("Access-Control-Allow-Origin", origin);
+    response.set("Vary", "Origin");
+  }
+
+  if (request.method === "OPTIONS") {
+    if (origin && !allowedOrigins.has(origin)) {
+      return response.sendStatus(403);
+    }
+
+    response.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+    response.set("Access-Control-Allow-Headers", "Content-Type");
+    if (request.get("access-control-request-private-network") === "true") {
+      response.set("Access-Control-Allow-Private-Network", "true");
+    }
+    return response.sendStatus(204);
+  }
+
+  next();
+});
 
 app.get("/api/device-info", (_request, response) => {
   const interfaces = os.networkInterfaces();

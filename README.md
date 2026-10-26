@@ -9,7 +9,7 @@ Aplicación React con una API Node.js que consulta el hostname y las direcciones
 
 ## Aplicación local en Windows
 
-Una página pública no puede leer silenciosamente el hostname ni las interfaces privadas de un equipo: el navegador lo impide por seguridad. La página publicada ofrece un enlace a la aplicación local. La aplicación local muestra directamente la IPv4 Ethernet, no la IP pública.
+Una página pública no puede leer silenciosamente el hostname ni las interfaces privadas de un equipo: el navegador lo impide por seguridad. La página publicada solicita al usuario permiso para consultar el servicio local de este equipo. El navegador debe admitir y conceder el permiso; además, el servicio local debe estar instalado y activo en la computadora visitante.
 
 En Windows, instala Node.js 20.19 o superior, descarga este proyecto y ejecuta `Instalar inicio automatico.bat` una vez. El instalador prepara las dependencias y registra una tarea programada que inicia el servidor local oculto al iniciar sesión. Abre `http://localhost:3000` para consultar la dirección. Cada equipo debe ejecutar el instalador en su propia computadora.
 
@@ -37,7 +37,7 @@ npm start
 
 El servicio escucha en el puerto `3000` por defecto. Puedes cambiarlo con la variable de entorno `PORT`.
 
-La página pública no puede leer por sí sola las direcciones de red locales. Pulsa **Abrir aplicación local** para ver la IPv4 Ethernet de este equipo; cada equipo debe tener instalada su propia aplicación. El servicio local se inicia automáticamente en segundo plano después de instalarlo.
+En la página pública, pulsa **Permitir acceso y consultar Ethernet** y acepta la solicitud de acceso a la red local que muestre el navegador. Si el navegador no ofrece este permiso o bloquea la conexión, abre `http://localhost:3000`. Cada computadora necesita tener instalada su propia aplicación; el servicio se inicia automáticamente en segundo plano después de ejecutar el instalador.
 
 ## Publicar el frontend en GitHub Pages
 

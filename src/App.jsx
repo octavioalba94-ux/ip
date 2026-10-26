@@ -11,20 +11,26 @@ export default function App() {
     ?.address;
 
   async function loadDeviceInfo() {
-    if (isPublicSite) return;
-
     setLoading(true);
     setError("");
 
     try {
-      const deviceInfoResponse = await fetch("/api/device-info");
+      const endpoint = isPublicSite
+        ? "http://localhost:3000/api/device-info"
+        : "/api/device-info";
+      const deviceInfoResponse = await fetch(endpoint);
       if (!deviceInfoResponse.ok) {
-        throw new Error(`El servidor respondió con el estado ${deviceInfoResponse.status}.`);
+        throw new Error(`El servicio local respondió con el estado ${deviceInfoResponse.status}.`);
       }
 
       setDeviceInfo(await deviceInfoResponse.json());
     } catch (loadError) {
-      setError(loadError.message || "No se pudo obtener la información del equipo.");
+      setDeviceInfo(null);
+      setError(
+        isPublicSite
+          ? "No se pudo acceder al servicio local. Confirma el permiso de red local del navegador y que el servicio esté instalado y activo en este equipo."
+          : loadError.message || "No se pudo obtener la información del equipo.",
+      );
     } finally {
       setLoading(false);
     }
@@ -44,27 +50,18 @@ export default function App() {
         <h1 id="page-title">{isPublicSite ? "Consulta tu IPv4 local" : "IPv4 local de Ethernet"}</h1>
         <p className="intro">
           {isPublicSite
-            ? "Para proteger tu privacidad, el navegador no permite que esta página lea la red local. Abre la aplicación local en este mismo equipo para ver la IPv4 real de Ethernet."
+            ? "Pulsa el botón para solicitar acceso y consultar directamente la IPv4 Ethernet. Si el servicio no está activo, ejecuta “Iniciar aplicacion local.bat” en este equipo."
             : "Esta es la dirección IPv4 asignada a la interfaz Ethernet de esta computadora."}
         </p>
 
-        {isPublicSite ? (
-          <div className="details">
-            <a className="refresh-button local-app-link" href="http://localhost:3000">
-              Abrir aplicación local
-            </a>
-            <p className="footnote">
-              Si no abre, instala la aplicación en este equipo y ejecuta “Instalar inicio automatico.bat” una vez.
-            </p>
-          </div>
-        ) : loading ? (
-          <p className="message" role="status">Consultando el equipo…</p>
+        {loading ? (
+          <p className="message" role="status">Solicitando acceso y consultando el equipo…</p>
         ) : error ? (
           <div className="error" role="alert">
             <p>{error}</p>
             <button className="retry-button" onClick={loadDeviceInfo}>Intentar de nuevo</button>
           </div>
-        ) : (
+        ) : deviceInfo ? (
           <div className="details">
             {ethernetAddress ? (
               <article className="info-box">
@@ -86,9 +83,20 @@ export default function App() {
               El dato mostrado es la dirección IPv4 local del adaptador Ethernet; no es la IP pública de Internet.
             </p>
           </div>
+        ) : isPublicSite ? (
+          <div className="details">
+            <button className="refresh-button" onClick={loadDeviceInfo}>
+              Consultar IPv4 LOCAL (ETHERNET)
+            </button>
+            <p className="footnote">
+              El navegador puede solicitar permiso de red local. Si el servicio no responde, ejecuta “Iniciar aplicacion local.bat” en esta computadora.
+            </p>
+          </div>
+        ) : (
+          <p className="message" role="status">Consultando el equipo…</p>
         )}
 
-        {!isPublicSite && (
+        {deviceInfo && (
           <button className="refresh-button" onClick={loadDeviceInfo} disabled={loading}>
             {loading ? "Actualizando…" : "Actualizar datos"}
           </button>
@@ -96,7 +104,7 @@ export default function App() {
       </section>
       <footer>
         {isPublicSite
-          ? "La aplicación local muestra la IPv4 Ethernet de este equipo."
+          ? "La página consulta el servicio local de este equipo después de autorizar el acceso en el navegador."
           : "Dirección IPv4 de Ethernet obtenida desde las interfaces de red de este equipo."}
       </footer>
     </main>
