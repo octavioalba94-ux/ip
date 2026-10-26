@@ -1,20 +1,30 @@
 # Información del equipo
 
-Aplicación web en React que muestra el hostname y las direcciones IPv4 no internas del equipo donde se ejecuta el servicio. La API de Node.js consulta los datos directamente al sistema operativo; no usa valores de ejemplo ni servicios externos.
+Aplicación React con una API Node.js que consulta el hostname y las direcciones IPv4 directamente al sistema operativo de la máquina donde se ejecuta Node.js.
 
 ## Requisitos
 
 - Node.js 20.19+ o 22.12+
 - npm
 
-## Desarrollo
+## Ver los datos de tu propia computadora
+
+La página pública de GitHub Pages muestra el equipo donde está alojada la API (Render), no la computadora del visitante. Los navegadores no permiten que una página pública lea el hostname ni las interfaces de red privadas del dispositivo que la visita.
+
+Para mostrar los datos reales de tu computadora:
 
 ```sh
 npm install
 npm run dev
 ```
 
-Abre `http://localhost:3000`. Para entrar desde otro dispositivo de la misma red, usa la dirección IPv4 del equipo servidor y permite el puerto 3000 en el firewall si es necesario.
+Abre `http://localhost:3000` en la misma computadora. El hostname y las direcciones IPv4 mostradas entonces se consultan en ese equipo. Mantén la terminal abierta mientras uses la página; para detener el servicio, pulsa `Ctrl+C` en esa terminal.
+
+Las IPv4 pueden ser privadas de tu red local; no necesariamente son la IP pública de Internet.
+
+## Desarrollo remoto
+
+Para consultar la información del servidor desde otro dispositivo de la misma red, usa la dirección IPv4 del equipo que ejecuta Node.js y permite el puerto 3000 en el firewall si es necesario. La página pública desplegada en Render consulta únicamente el servidor Render.
 
 ## Producción
 

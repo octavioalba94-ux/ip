@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+const isRemoteServer = Boolean(API_BASE_URL);
 
 export default function App() {
   const [deviceInfo, setDeviceInfo] = useState(null);
@@ -31,10 +32,15 @@ export default function App() {
   return (
     <main className="page">
       <section className="card" aria-labelledby="page-title">
-        <div className="eyebrow"><span className="status-dot" /> INFORMACIÓN DEL SERVIDOR</div>
+        <div className="eyebrow">
+          <span className="status-dot" />
+          {isRemoteServer ? "DATOS DEL SERVIDOR" : "DATOS DE ESTA COMPUTADORA"}
+        </div>
         <h1 id="page-title">Tu equipo, en un vistazo</h1>
         <p className="intro">
-          Datos actuales del equipo donde se está ejecutando este servicio web.
+          {isRemoteServer
+            ? "La página pública muestra el servidor alojado, no la computadora desde la que navegas. Ejecuta la aplicación localmente para ver los datos de tu equipo."
+            : "Datos actuales obtenidos directamente del sistema operativo de esta computadora."}
         </p>
 
         {loading ? (
@@ -63,8 +69,9 @@ export default function App() {
               )}
             </article>
             <p className="footnote">
-              Las direcciones mostradas pertenecen a las interfaces de red del servidor;
-              pueden ser privadas y no necesariamente son la IP pública de Internet.
+              {isRemoteServer
+                ? "Estos datos pertenecen a las interfaces de red del servidor alojado; pueden ser privados y no son necesariamente la IP pública de Internet."
+                : "Estas direcciones pertenecen a las interfaces de red de esta computadora; pueden ser privadas y no son necesariamente la IP pública de Internet."}
             </p>
           </div>
         )}
