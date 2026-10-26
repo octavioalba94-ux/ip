@@ -37,7 +37,7 @@ npm start
 
 El servicio escucha en el puerto `3000` por defecto. Puedes cambiarlo con la variable de entorno `PORT`.
 
-La IP pública que muestra una instalación en Render corresponde al servidor Render, no al visitante. Las IP locales pueden ser privadas y los adaptadores virtuales (por ejemplo WSL) aparecen identificados por su nombre de interfaz.
+En la página pública, la IP pública se consulta desde el navegador del visitante. El hostname y las direcciones locales siguen correspondiendo al servidor Render porque una página pública no puede leer esos datos del equipo visitante. Si el visitante usa una VPN o proxy, se muestra la IP de salida de ese intermediario. Las IP locales pueden ser privadas y los adaptadores virtuales (por ejemplo WSL) aparecen identificados por su nombre de interfaz.
 
 ## Publicar el frontend en GitHub Pages
 

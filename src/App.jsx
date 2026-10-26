@@ -3,6 +3,14 @@ import { useEffect, useState } from "react";
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
 const isRemoteServer = Boolean(API_BASE_URL);
 
+function isIPv4Address(value) {
+  const parts = value.split(".");
+  return parts.length === 4 && parts.every((part) => {
+    const octet = Number(part);
+    return /^\d{1,3}$/.test(part) && octet >= 0 && octet <= 255;
+  });
+}
+
 export default function App() {
   const [deviceInfo, setDeviceInfo] = useState(null);
   const [error, setError] = useState("");
@@ -13,11 +21,27 @@ export default function App() {
     setError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/device-info`);
-      if (!response.ok) {
-        throw new Error(`El servidor respondió con el estado ${response.status}.`);
+      const deviceInfoResponse = await fetch(`${API_BASE_URL}/api/device-info`);
+      if (!deviceInfoResponse.ok) {
+        throw new Error(`El servidor respondió con el estado ${deviceInfoResponse.status}.`);
       }
-      setDeviceInfo(await response.json());
+
+      const deviceInfo = await deviceInfoResponse.json();
+      let publicIp = deviceInfo.publicIp;
+      if (isRemoteServer) {
+        const publicIpResponse = await fetch("https://api.ipify.org?format=json");
+        if (!publicIpResponse.ok) {
+          throw new Error(`El servicio de IP pública respondió con el estado ${publicIpResponse.status}.`);
+        }
+
+        publicIp = (await publicIpResponse.json()).ip;
+      }
+
+      if (typeof publicIp !== "string" || !isIPv4Address(publicIp)) {
+        throw new Error("No se recibió una dirección IPv4 pública válida.");
+      }
+
+      setDeviceInfo({ ...deviceInfo, publicIp });
     } catch (loadError) {
       setError(loadError.message || "No se pudo obtener la información del equipo.");
     } finally {
@@ -39,7 +63,7 @@ export default function App() {
         <h1 id="page-title">Tu equipo, en un vistazo</h1>
         <p className="intro">
           {isRemoteServer
-            ? "La página pública muestra el servidor alojado, no la computadora desde la que navegas. Ejecuta la aplicación localmente para ver los datos de tu equipo."
+            ? "El hostname y las IP locales son del servidor alojado; la IP pública corresponde a tu conexión. Ejecuta la aplicación localmente para ver el hostname de tu equipo."
             : "Hostname e IP locales de esta computadora; IP pública de salida de su conexión a Internet."}
         </p>
 
@@ -61,7 +85,7 @@ export default function App() {
               <strong className="value">{deviceInfo.publicIp}</strong>
               <p className="box-note">
                 {isRemoteServer
-                  ? "IP pública de salida del servidor alojado."
+                  ? "IP pública de la conexión desde la que abriste esta página."
                   : "IP pública de salida de tu conexión a Internet. Si estás detrás de un router, puede ser compartida por varios dispositivos."}
               </p>
             </article>
@@ -69,12 +93,17 @@ export default function App() {
               <span className="label">DIRECCIONES IPv4 LOCALES</span>
               {deviceInfo.addresses.length > 0 ? (
                 <ul className="address-list">
-                  {deviceInfo.addresses.map(({ interface: interfaceName, address }) => (
-                    <li className="address-item" key={address}>
-                      <span className="value">{address}</span>
-                      <span className="interface-name">{interfaceName}</span>
-                    </li>
-                  ))}
+                  {deviceInfo.addresses.map((item) => {
+                    const { interface: interfaceName, address } = typeof item === "string"
+                      ? { interface: "", address: item }
+                      : item;
+                    return (
+                      <li className="address-item" key={address}>
+                        <span className="value">{address}</span>
+                        {interfaceName && <span className="interface-name">{interfaceName}</span>}
+                      </li>
+                    );
+                  })}
                 </ul>
               ) : (
                 <p className="empty-value">No se detectaron direcciones IPv4 locales.</p>
@@ -82,7 +111,7 @@ export default function App() {
             </article>
             <p className="footnote">
               {isRemoteServer
-                ? "Las direcciones locales pertenecen al servidor alojado. La IP pública se consulta desde ese servidor, no desde la computadora que visita la página."
+                ? "El hostname y las direcciones locales pertenecen al servidor alojado. La IP pública se consulta desde tu navegador; si usas una VPN o proxy, se mostrará su IP de salida."
                 : "Las IP locales pertenecen a las interfaces de esta computadora. La IP pública se consulta a través de un servicio externo (ipify); tu solicitud de consulta sale desde tu conexión."}
             </p>
           </div>
