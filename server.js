@@ -7,6 +7,23 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const port = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === "production" || process.argv.includes("--production");
+const allowedWebOrigin = process.env.WEB_ORIGIN;
+
+app.use("/api", (request, response, next) => {
+  const origin = request.get("origin");
+  if (origin && allowedWebOrigin && origin === allowedWebOrigin) {
+    response.set("Access-Control-Allow-Origin", allowedWebOrigin);
+    response.set("Vary", "Origin");
+  }
+
+  if (request.method === "OPTIONS") {
+    response.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+    response.set("Access-Control-Allow-Headers", "Content-Type");
+    return response.sendStatus(204);
+  }
+
+  next();
+});
 
 app.get("/api/device-info", (_request, response) => {
   const interfaces = os.networkInterfaces();

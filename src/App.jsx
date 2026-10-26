@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+
 export default function App() {
   const [deviceInfo, setDeviceInfo] = useState(null);
   const [error, setError] = useState("");
@@ -10,7 +12,7 @@ export default function App() {
     setError("");
 
     try {
-      const response = await fetch("/api/device-info");
+      const response = await fetch(`${API_BASE_URL}/api/device-info`);
       if (!response.ok) {
         throw new Error(`El servidor respondió con el estado ${response.status}.`);
       }

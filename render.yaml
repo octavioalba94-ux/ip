@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: ip-device-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/device-info
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WEB_ORIGIN
+        value: https://octavioalba94-ux.github.io
