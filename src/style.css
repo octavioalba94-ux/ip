@@ -106,6 +106,16 @@ h1 {
   font-weight: 700;
 }
 
+.ethernet-value {
+  font-size: clamp(24px, 6vw, 36px);
+}
+
+.local-app-link {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
 .address-list {
   display: grid;
   gap: 7px;

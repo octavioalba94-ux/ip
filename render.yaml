@@ -5,9 +5,9 @@ services:
     plan: free
     buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
-    healthCheckPath: /api/device-info
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: WEB_ORIGIN
-        value: https://octavioalba94-ux.github.io
+      - key: VITE_PUBLIC_SITE
+        value: "true"

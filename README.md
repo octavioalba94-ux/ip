@@ -1,6 +1,6 @@
 # Información del equipo
 
-Aplicación React con una API Node.js que consulta el hostname y las direcciones IPv4 locales en el sistema operativo, y obtiene la IP pública mediante ipify.
+Aplicación React con una API Node.js que consulta el hostname y las direcciones IPv4 locales de este equipo.
 
 ## Requisitos
 
@@ -9,7 +9,7 @@ Aplicación React con una API Node.js que consulta el hostname y las direcciones
 
 ## Aplicación local en Windows
 
-Una página pública no puede leer silenciosamente el hostname ni las interfaces privadas de un equipo: el navegador lo impide por seguridad. La página publicada muestra la IP pública; para consultar la IPv4 Ethernet sin permisos del navegador, ejecuta la aplicación local en el equipo.
+Una página pública no puede leer silenciosamente el hostname ni las interfaces privadas de un equipo: el navegador lo impide por seguridad. La página publicada ofrece un enlace a la aplicación local. La aplicación local muestra directamente la IPv4 Ethernet, no la IP pública.
 
 En Windows, instala Node.js 20.19 o superior, descarga este proyecto y ejecuta `Instalar inicio automatico.bat`. El instalador prepara las dependencias, registra el iniciador para que se ejecute al iniciar sesión y abre la aplicación local en `http://localhost:3000`. A partir del siguiente inicio de sesión, se abrirá automáticamente. Cada equipo debe ejecutar este instalador una vez.
 
@@ -18,9 +18,9 @@ npm install
 npm run dev
 ```
 
-Abre `http://localhost:3000` en la misma computadora. El hostname y las direcciones IPv4 locales se consultan en ese equipo. La IP pública se obtiene a través de ipify y corresponde a la dirección pública de salida de tu conexión a Internet; si estás detrás de un router o una VPN, puede ser compartida o corresponder a la salida de la VPN.
+Abre `http://localhost:3000` en la misma computadora. La IPv4 Ethernet y el hostname se consultan directamente en las interfaces de ese equipo.
 
-La consulta de la IP pública requiere conexión a Internet y envía una solicitud a `api.ipify.org`. Si el servicio externo no está disponible, la API informa un error en lugar de mostrar una dirección inventada. Mantén la terminal abierta mientras uses la página; para detener el servicio, pulsa `Ctrl+C` en esa terminal.
+La consulta local no requiere conexión a Internet. Mantén la terminal abierta mientras uses la página; para detener el servicio, pulsa `Ctrl+C` en esa terminal.
 
 Para iniciar la aplicación manualmente, ejecuta `Iniciar aplicacion local.bat`. El inicio automático se puede quitar eliminando el acceso directo `Informacion del equipo` de la carpeta `shell:startup`.
 
@@ -37,21 +37,10 @@ npm start
 
 El servicio escucha en el puerto `3000` por defecto. Puedes cambiarlo con la variable de entorno `PORT`.
 
-La página pública solo muestra la IP pública porque los navegadores no permiten que un sitio web lea el hostname ni la IPv4 Ethernet del visitante. Ejecuta la aplicación local para consultar esos datos en el equipo sin permisos de acceso a la red local del navegador.
+La página pública no intenta leer direcciones de red ni muestra la IP pública. Pulsa **Abrir aplicación local** para ver la IPv4 Ethernet de este equipo; cada equipo debe tener instalada y en ejecución su propia aplicación.
 
 ## Publicar el frontend en GitHub Pages
 
-GitHub Pages solo sirve el frontend estático; no ejecuta la API Node. Para que la página muestre datos reales, primero despliega este backend en un servicio compatible con Node.js y configura estas variables de entorno en ese servicio:
+GitHub Pages solo sirve el frontend estático; no ejecuta la API Node. El workflow `.github/workflows/deploy.yml` publica la página en `https://octavioalba94-ux.github.io/ip/` al hacer push a `main`. En la página pública, el enlace **Abrir aplicación local** lleva a la aplicación de ese mismo equipo.
 
-- `WEB_ORIGIN`: `https://octavioalba94-ux.github.io`
-- `PORT`: Render la configura automáticamente.
-
-### API en Render
-
-El archivo `render.yaml` define el servicio web `ip-device-api`. En Render, crea un **Blueprint** desde este repositorio y acepta la configuración detectada. Render instalará dependencias, compilará y ejecutará el servicio. Al terminar, copia el dominio asignado al servicio, por ejemplo `https://ip-device-api.onrender.com`.
-
-En GitHub, abre **Settings > Secrets and variables > Actions > Variables**, crea la variable de repositorio `VITE_API_BASE_URL` y pega el origen público asignado por Render, sin `/api` al final. Si el dominio asignado difiere del ejemplo, usa el dominio real.
-
-El workflow `.github/workflows/deploy.yml` compila y publica el frontend en `https://octavioalba94-ux.github.io/ip/` al hacer push a `main`. También puede ejecutarse manualmente desde la pestaña Actions.
-
-En el repositorio, selecciona **Settings > Pages > Source > GitHub Actions**. El workflow no se desplegará hasta configurar `VITE_API_BASE_URL`.
+En el repositorio, selecciona **Settings > Pages > Source > GitHub Actions**.
